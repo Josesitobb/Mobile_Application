@@ -217,16 +217,16 @@ const createProduct = asyncHandler(async (req, res) => {
 });
 
 // Actualizar una subcategoria
-const updateSubcategory = asyncHandler(async (req, res) => {
-    const subcategory = await Subcategory.findById(req.params.id);
-    if (!subcategory) {
+const updateProduct = asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
         return res.status(400).json({
             success: false,
-            message: 'Categoria no encontrada'
+            message: 'Producto no encontrado'
         });
     }
 
-    const { name, description, category, categoryId, icon, color, sortOrder, isActive } = req.body;
+ const { name, description, shortDescription,sku,category,subcategory,price,comparePrice,cost,stock,demensions,images,isActive,isFeatured,isDigital,sortOrder,seoTitle,seoDescription } = req.body
 
     const targetCategoryId = categoryId || category;
     // Si cambia la categoria validar que exista y este activa
