@@ -161,7 +161,7 @@ const productSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
-    isFeactured: {
+    isFeatured: {
         type: Boolean,
         default: false
     },
