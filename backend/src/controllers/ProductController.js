@@ -131,14 +131,14 @@ const getProductById = asyncHandler(async (req, res) => {
         });
     }
     res.status(200).json({
-        success:true,
-        data:product
+        success: true,
+        data: product
     });
 });
 
 // Obtener una subcategorias por ID
 const getProductBySku = asyncHandler(async (req, res) => {
-    const product = await Product.findOne({sku:req.params.sku.toUpperCase()}).populate('category', 'name slug ').populate('subcategory', 'name slug ');
+    const product = await Product.findOne({ sku: req.params.sku.toUpperCase() }).populate('category', 'name slug ').populate('subcategory', 'name slug ');
     if (!product) {
         return res.status(404).json({
             success: false,
@@ -146,8 +146,8 @@ const getProductBySku = asyncHandler(async (req, res) => {
         });
     }
     res.status(200).json({
-        success:true,
-        data:product
+        success: true,
+        data: product
     });
 });
 
@@ -155,8 +155,8 @@ const getProductBySku = asyncHandler(async (req, res) => {
 
 // Crear una categoria
 const createProduct = asyncHandler(async (req, res) => {
-    const { name, description, shortDescription,sku,category,subcategory,price,comparePrice,cost,stock,demensions,images,isActive,isFeatured,isDigital,sortOrder,seoTitle,seoDescription } = req.body;
-    
+    const { name, description, shortDescription, sku, category, subcategory, price, comparePrice, cost, stock, demensions, images, isActive, isFeatured, isDigital, sortOrder, seoTitle, seoDescription } = req.body;
+
 
     const parentCategory = await Category.findById(Category);
     if (!parentCategory) {
@@ -165,7 +165,7 @@ const createProduct = asyncHandler(async (req, res) => {
             message: 'La categoria especifica no existe no esta activa'
         });
     }
-    
+
     const parentSubategory = await Subcategory.findById(subcategory);
     if (!parentSubategory || !parentSubategory.isActive) {
         return res.status(400).json({
@@ -174,40 +174,40 @@ const createProduct = asyncHandler(async (req, res) => {
         });
     }
 
-    if(!parentSubategory.category.toString() !==category){
+    if (!parentSubategory.category.toString() !== category) {
         return res.status(400).json({
-            success:false,
-            message:'La subcategoria no pertenece a la categoria especifica'
+            success: false,
+            message: 'La subcategoria no pertenece a la categoria especifica'
         })
     }
 
 
     // // Crear el producto
     const product = await Subcategory.create({
-      name, 
-      description, 
-      shortDescription,
-      sku:sku.toUpperCase(),
-      category,
-      subcategory,
-      price,
-      comparePrice,
-      cost,
-      stock: stock || {quantity:0,minStock:0,trackStock:true},
-      demensions,
-      images,
-      tags:tags || [],
-      isActive: isActive !==undefined ? isActive:true,
-      isFeatured: isFeatured || false,
-      isDigital: isDigital || false,
-      sortOrder:sortOrder || 0,
-      seoTitle,
-      seoDescription ,
-      createdBy:req.user._id
+        name,
+        description,
+        shortDescription,
+        sku: sku.toUpperCase(),
+        category,
+        subcategory,
+        price,
+        comparePrice,
+        cost,
+        stock: stock || { quantity: 0, minStock: 0, trackStock: true },
+        demensions,
+        images,
+        tags: tags || [],
+        isActive: isActive !== undefined ? isActive : true,
+        isFeatured: isFeatured || false,
+        isDigital: isDigital || false,
+        sortOrder: sortOrder || 0,
+        seoTitle,
+        seoDescription,
+        createdBy: req.user._id
     });
     await product.populate([
-        {path:'category',select:'name slug'},
-        {path:'subcategory',select:'name slug'}
+        { path: 'category', select: 'name slug' },
+        { path: 'subcategory', select: 'name slug' }
     ])
     res.status(201).json({
         success: true,
@@ -226,51 +226,90 @@ const updateProduct = asyncHandler(async (req, res) => {
         });
     }
 
- const { name, description, shortDescription,sku,category,subcategory,price,comparePrice,cost,stock,demensions,images,isActive,isFeatured,isDigital,sortOrder,seoTitle,seoDescription } = req.body
+    const { name,
+        description,
+        shortDescription,
+        sku,
+        category,
+        subcategory,
+        price,
+        comparePrice,
+        cost,
+        stock,
+        demensions,
+        images,
+        isActive,
+        isFeatured,
+        isDigital,
+        sortOrder,
+        seoTitle,
+        seoDescription } = req.body
 
-    const targetCategoryId = categoryId || category;
-    // Si cambia la categoria validar que exista y este activa
-    if (targetCategoryId && targetCategoryId !== subcategory.category.toString()) {
-        const parentCategory = await Category.findById(targetCategoryId);
-        if (!parentCategory) {
+    if (sku && sku.toUpperCase() !== product.sku) {
+        const existingSku = await Product.findOne({ sku: sku.toUpperCase() });
+        if (existingSku) {
+            return res.status(404).json({
+                success: false,
+                message: 'El sku ya existe'
+            });
+        }
+    }
+
+    if (category || subcategory) {
+
+        const targetCategory = category || product.category;
+        const targetSubcategory = subcategory || product.subcategory;
+
+
+        // Si cambia la categoria validar que exista y este activa
+        const parentCategory = await Category.findById(targetCategory);
+        if (!parentCategory || !parentCategory.isActive) {
             return res.status(400).json({
                 success: false,
                 message: 'La categoria expecifica no existe'
             });
         }
 
-        if (!parentCategory.isActive) {
+        const parentSubcategory = await Subcategory.findById(targetSubcategory);
+        if (!parentSubcategory || !parentSubcategory.isActive) {
             return res.status(400).json({
                 success: false,
-                message: 'La categoria especifica no esta activa'
+                message: 'La subcategoria expecifica no existe'
+            });
+        }
+
+        // Verificar duplicados 
+        if (parentSubcategory.category.tpString() !== targetCategory.toString()) {
+            return res.status(400).json({
+                success: false,
+                message: 'La subcategoria no perteece a la categoria expecifica'
             });
         }
     }
 
-    // Verificar duplicados 
-    if ((name && name !== category.name) || (targetCategoryId && targetCategoryId !== subcategory.category.toString())) {
-        const existingSubcategory = await Subcategory.findOne({
-            name: { $regex: new RegExp(`^${name || subcategory.name}$`, 'i') }
-        });
 
-        if (existingSubcategory) {
-            return res.status(400).json({
-                success: false,
-                message: 'Ya existe una subcategoria con este nombre en esta categoria'
-            });
-        }
-    }
-
-    // Actualizar la subcategoria
-    if (name) subcategory.name = name;
-    if (description !== undefined) subcategory.description = description;
-    if (targetCategoryId !== undefined) subcategory.category = targetCategoryId;
-
-    if (icon != undefined) subcategory.icon = icon;
-    if (color !== undefined) subcategory.color = color;
-    if (sortOrder !== undefined) subcategory.sortOrder = sortOrder;
-    if (isActive !== undefined) subcategory.isActive = isActive;
-    subcategory.updateBy = req.user._id;
+    // Actualizar la productos
+    if (name) product.name = name;
+    if (description !== undefined) product.description = description;
+    if (shortDescription !== undefined) product.shortDescription = description;
+    if (sku !== undefined) product.sku = sku.TpUppercase();
+    if (category !== undefined) product.category = category;
+    if (subcategory !== undefined) product.subcategory = subcategory;
+    if (price !== undefined) product.price = price;
+    if (comparePrice !== undefined) product.comparePrice = comparePrice;
+    if (cost !== undefined) product.cost = cost;
+    if (stock !== undefined) product.stock = stock;
+    if (demensions !== undefined) product.demensions = demensions;
+    if (images !== undefined) product.images = images;
+    if (tags !== undefined) product.tags = tags;
+    if (isActive !== undefined) product.isActive = isActive;
+    if (isFeatured !== undefined) product.isFeactured = isFeatured;
+    if (isDigital !== undefined) product.isDigital = isDigital;
+    if (targetCategoryId !== undefined) product.category = targetCategoryId;
+    if (icon != undefined) product.icon = icon;
+    if (color !== undefined) product.color = color;
+    if (sortOrder !== undefined) product.sortOrder = sortOrder;
+    product.updateBy = req.user._id;
     await subcategory.save();
     await subcategory.populate('category', 'name slug');
     res.status(200).json({
