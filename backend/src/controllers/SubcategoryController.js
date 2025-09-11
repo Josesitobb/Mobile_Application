@@ -125,8 +125,8 @@ const createSubcategory = asyncHandler(async (req, res) => {
       message: "La categoria especifica no existe",
     });
   }
-  console.log(parentCategory);
-  if (!parentCategory.isActivate) {
+  console.log(parentCategory.isActive);
+  if (!parentCategory.isActive) {
     return res.status(400).json({
       success: false,
       message: "La categoria especifica no existe",
@@ -137,6 +137,7 @@ const createSubcategory = asyncHandler(async (req, res) => {
     name: { $regex: new RegExp(`^${name}$`, "i") },
     category: targetCategoryId,
   });
+
   if (existingSubcategory) {
     return res.status(400).json({
       success: false,
@@ -198,7 +199,7 @@ const updateSubcategory = asyncHandler(async (req, res) => {
       });
     }
 
-
+console.log("Entreo a el actualizar");
     if (!parentCategory.isActivate) {
       return res.status(400).json({
         success: false,
@@ -253,7 +254,7 @@ const deleteSubcategory = asyncHandler(async (req, res) => {
   }
 
   // Verificar si se puede eliminar
-  const canDelete = await subcategory.canDelete();
+  const canDelete = await subcategory.canBeDelete();
   if (!canDelete) {
     return res.status(400).json({
       success: false,
@@ -270,7 +271,8 @@ const deleteSubcategory = asyncHandler(async (req, res) => {
 });
 // Activar o desactivar categoria
 const toggleSubcategoryStatus = asyncHandler(async (req, res) => {
-  const subcategory = await Subcategory.findById(req.params._id);
+  const subcategory = await Subcategory.findById(req.params.id);
+  console.log(req.params);
   if (!subcategory) {
     return res.status(404).json({
       success: false,

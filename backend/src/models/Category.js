@@ -21,7 +21,7 @@ const categoryShema = new mongoose.Schema({
         lowercase: true,
         trim: true
     },
-    isActivate:{
+    isActive:{
         type: Boolean,
         default: true,
     },

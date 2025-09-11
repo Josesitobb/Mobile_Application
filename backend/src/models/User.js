@@ -64,7 +64,7 @@ const userShema = new mongose.Schema({
 },{
     timestamps: true,
 });
-//Emcriptar contraseña antes de guardar
+//Encriptar contraseña antes de guardar
 userShema.pre('save', async function(next){
 if (!this.isModified('password')) return next();
 try{

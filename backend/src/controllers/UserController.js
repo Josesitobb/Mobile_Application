@@ -7,10 +7,7 @@ const getUsers = asyncHandler(async (req, res)=>{
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1)*limit;
-
-
     //Filstros dinamicos
-
     const filter ={};
     //Rol
     if (req.query.role) filter.role = req.query.role;
@@ -28,7 +25,7 @@ const getUsers = asyncHandler(async (req, res)=>{
     
     //Consulta de paginacion
     const users = await User.find(filter)
-    .populate('createBy', 'username firstName lastName')
+    .populate('createdBy', 'username firstName lastName')
     .sort({ createdAt: -1})
     .skip(skip)
     .limit(limit);
