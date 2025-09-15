@@ -63,19 +63,19 @@ const getUserById = asyncHandler(async (req, res)=>{
 
 //Crear un usuario
 const createUser = asyncHandler(async (req, res)=>{
-    const{
-        username,
-        email,
-        password,
-        firtsName,
-        lastName,
-        role,
-        phone,
-        isActive
-    }=req.body;
+    const {
+    username,
+    email,
+    password,
+    firstName,
+    lastName,
+    role,
+    phone,
+    isActive
+} = req.body;
 
     //validaciones
-    if (!username || !email || !password || !firtsName || !lastName || !role) {
+    if (!username || !email || !password || !firstName || !lastName || !role || !phone) {
         return res.status(400).json({
             success: false,
             message: 'Todos los campos son obligatorios'
@@ -96,12 +96,12 @@ const createUser = asyncHandler(async (req, res)=>{
         username,
         email,
         password,
-        firtsName,
+        firstName,
         lastName,
         role,
         phone,
         isActive: isActive !== undefined ? isActive: true,
-        creadBy: req.user._id
+        createdBy: req.user._id
     });
 
     const dataUser = user.toObject();

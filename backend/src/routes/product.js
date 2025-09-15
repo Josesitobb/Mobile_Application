@@ -3,7 +3,7 @@ const router = express.Router();
 
 const {
     getProducts,
-    getActiveProdcuts,
+    getActiveProducts,
     getProductById,
     getProductsByCategory,
     getProductsBySubcategory,
@@ -27,8 +27,8 @@ const{
 // Middleware de validacion
 const { validateObjectId }= require('../middlewares/errorHandler');
 
-//subcategorias activas para frontpublico
-router.get('/active',getActiveProdcuts);
+//subcategorias activas para front publico
+router.get('/active',getActiveProducts);
 
 //productos destacados
 router.get('/featured',getFeaturedProducts)
@@ -52,7 +52,7 @@ router.get('/sku/:sku', getProductBySku);
 router.get('/', getProducts);
 
 //productos por id
-router.get('/id',validateObjectId('id'), getProductById);
+router.get('/:id',validateObjectId('id'), getProductById);
 
 //crear producto
 router.post('/', verifyAdminOrCoordinador, createProduct);

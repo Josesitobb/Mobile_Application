@@ -51,10 +51,9 @@ const getSubcategories = asyncHandler(async (req, res) => {
 const getSubcategoriesByCategory = asyncHandler(async (req, res) => {
   const { categoryId } = req.params;
 
-  
   // Verificar si la categoria existe y esta activa
   const category = await Category.findById(categoryId);
- 
+
   if (!category) {
     return res.status(404).json({
       success: false,
@@ -119,21 +118,24 @@ const createSubcategory = asyncHandler(async (req, res) => {
   }
 
   const parentCategory = await Category.findById(targetCategoryId);
+  console.log("Ola socio como estas amor", parentCategory);
+
   if (!parentCategory) {
     return res.status(400).json({
       success: false,
       message: "La categoria especifica no existe",
     });
   }
-  console.log(parentCategory.isActive);
-  if (!parentCategory.isActive) {
+
+  if (parentCategory.isActive === false) {
     return res.status(400).json({
       success: false,
       message: "La categoria especifica no existe",
     });
   }
+
   // Verficiar si la subcategoria ya existe en esa categoria
-  const existingSubcategory = await Category.findOne({
+  const existingSubcategory = await Subcategory.findOne({
     name: { $regex: new RegExp(`^${name}$`, "i") },
     category: targetCategoryId,
   });
@@ -163,9 +165,9 @@ const createSubcategory = asyncHandler(async (req, res) => {
   });
 });
 
-
 // Actualizar una subcategoria
 const updateSubcategory = asyncHandler(async (req, res) => {
+  try{
   const subcategory = await Subcategory.findById(req.params.id);
   if (!subcategory) {
     return res.status(400).json({
@@ -199,7 +201,7 @@ const updateSubcategory = asyncHandler(async (req, res) => {
       });
     }
 
-console.log("Entreo a el actualizar");
+    console.log("Entreo a el actualizar");
     if (!parentCategory.isActivate) {
       return res.status(400).json({
         success: false,
@@ -241,6 +243,13 @@ console.log("Entreo a el actualizar");
     success: true,
     data: subcategory,
   });
+  }catch(error){
+    console.error("Error al actualizar la subcategoria:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error interno del servidor",
+    });
+  }
 });
 
 // Eliminar Subcategoria
@@ -259,7 +268,7 @@ const deleteSubcategory = asyncHandler(async (req, res) => {
     return res.status(400).json({
       success: false,
       message:
-        "No se puede eliminar esta la subcategoria porque tiene   productos  asociados",
+        "No se puede eliminar esta la subcategoria porque tiene productos asociados",
     });
   }
 
@@ -269,10 +278,12 @@ const deleteSubcategory = asyncHandler(async (req, res) => {
     message: "Categoria eliminada correctamente",
   });
 });
+
 // Activar o desactivar categoria
 const toggleSubcategoryStatus = asyncHandler(async (req, res) => {
   const subcategory = await Subcategory.findById(req.params.id);
-  console.log(req.params);
+  console.log(req.params.id);
+  console.log(subcategory);
   if (!subcategory) {
     return res.status(404).json({
       success: false,
@@ -292,14 +303,16 @@ const toggleSubcategoryStatus = asyncHandler(async (req, res) => {
   }
   res.status(200).json({
     success: true,
-    message: `categoria ${
+    message: `Subcategoria ${
       subcategory.isActive ? "activada" : "desactivada"
     } correctamente`,
     data: subcategory,
   });
 });
 
-// Ordenar categoria
+
+
+// Ordenar Subcategoria
 const reorderSubcategories = asyncHandler(async (req, res) => {
   const { subcategoryIds } = req.body;
   if (!Array.isArray(subcategoryIds)) {
@@ -325,7 +338,7 @@ const reorderSubcategories = asyncHandler(async (req, res) => {
   });
 });
 
-// Obtener estadisticas de categorias
+// Obtener estadisticas de Subcategorias
 const getSubcategoryStats = asyncHandler(async (req, res) => {
   const stast = await Subcategory.aggregate([
     {
@@ -370,7 +383,6 @@ const getSubcategoryStats = asyncHandler(async (req, res) => {
     },
   });
 });
-
 
 module.exports = {
   getSubcategories,

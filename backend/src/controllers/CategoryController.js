@@ -55,9 +55,7 @@ const getActiveCategories = asyncHandler(async (req, res) => {
 });
 // Obtener una categoria por ID
 const getCategoryById = asyncHandler(async (req, res) => {
-  const category = await Category.findById(req.params.id)
-    .populate("createdBy", "username firstNmae lastName")
-    .populate("updateBy", "username firstName", "lastName");
+  const category = await Category.findById(req.params.id).populate("createdBy", "username firstName lastName").populate("updateBy", "username firstName lastName");
   if (!category) {
     return res.status(404).json({
       success: false,
@@ -176,6 +174,7 @@ const deleteCategory = asyncHandler(async (req, res) => {
     success: true,
     message: "Categoria eliminada correctamente",
   });
+  
 });
 // Activar o desactivar categoria
 const toggleCategoryStatus = asyncHandler(async (req, res) => {
@@ -186,11 +185,11 @@ const toggleCategoryStatus = asyncHandler(async (req, res) => {
       message: "Categoria no encontrada",
     });
   }
-  category.isActivate = !category.isActivate;
+  category.isActive = !category.isActive;
   category.updateBy = req.user._id;
   await category.save();
   // Si la categoria se desactiva, desactivar subcategorias y productos asociados
-  if (!category.isActivate) {
+  if (!category.isActive) {
     await Subcategory.updateMany(
       { category: category._id },
       { isActive: false, updateBy: req.user._id }
@@ -203,7 +202,7 @@ const toggleCategoryStatus = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: `categoria ${
-      category.isActivate ? "activada" : "desactivada"
+      category.isActive ? "activada" : "desactivada"
     } correctamente`,
     data: category,
   });

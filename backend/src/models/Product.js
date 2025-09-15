@@ -232,14 +232,14 @@ productShema.virtual('primaryImagen').get(function(){
     return this.images.find(image => image.isPrimary)|| this.imagen[0];
 });
 
-productShema.static.findActive = function(){
+productShema.statics.findActive = function(){
     return this.find({ isActive: true})
     .populate('category', 'name slug')
     .populate('subcategory', 'name slug')
     .sort ({sortOrder: 1, name : 1 });
 };
 
-productShema.static.findByCategory = function(categoryId){
+productShema.statics.findByCategory = function(categoryId){
     return this.find ({
         category : categoryId,
         isActive : true
@@ -249,7 +249,7 @@ productShema.static.findByCategory = function(categoryId){
     .sort ({ sortOrder: 1, name:1 });
 };
 
-productShema.static.findBySubcategory = function(subcategoryId){
+productShema.statics.findBySubcategory = function(subcategoryId){
     return this.find ({
         subcategory : subcategoryId,
         isActive : true
@@ -259,7 +259,7 @@ productShema.static.findBySubcategory = function(subcategoryId){
     .sort ({ sortOrder: 1, name:1 });
 };
 
-productShema.static.findFeature = function(){
+productShema.statics.findFeature = function(){
     return this.find ({
         isFeactured: true,
         isActive : true
