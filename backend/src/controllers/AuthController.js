@@ -123,7 +123,7 @@ const changePassword = asyncHandler(async (req, res) => {
 
 //inavlidar  el token usuario extraño
 const logout = asyncHandler(async (req, res) => {
-    res.staus(200).json({
+    res.status(200).json({
         success: true,
         message: 'logout existoso, invalida el token del clinetre'
     });
